@@ -118,7 +118,7 @@ pub fn save_single_frame(
 			#[cfg(target_arch = "wasm32")]
 			task.detach();
 			#[cfg(not(target_arch = "wasm32"))]
-			commands.spawn().insert(SaveFrameTask(task));
+			commands.spawn(SaveFrameTask(task));
 		}
 	}
 }
