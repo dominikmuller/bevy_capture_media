@@ -15,29 +15,29 @@ gif = ["dep:image", "dep:gif", "dep:color_quant", "dep:fnv"]
 parallel = ["dep:rayon"]
 
 [dependencies]
-bevy_render = "0.8"
-bevy_app = "0.8"
-bevy_tasks = "0.8"
-bevy_ecs = "0.8"
-bevy_asset = "0.8"
-bevy_transform = "0.8"
-bevy_core_pipeline = "0.8"
-bevy_time = "0.8"
+bevy_render = "0.9.1"
+bevy_app = "0.9.1"
+bevy_tasks = "0.9.1"
+bevy_ecs = "0.9.1"
+bevy_asset = "0.9.1"
+bevy_transform = "0.9.1"
+bevy_core_pipeline = "0.9.1"
+bevy_time = "0.9.1"
 
 #bevy = { version = "0.8", default-features = false, features = ["render", "bevy_winit", "png"] }
 log = "0.4"
-wgpu = "0.13"
+wgpu = "0.14"
 futures-lite = "1.12"
 
 # Dependencies for all image types
 image = { version = "0.24", optional = true }
 
 # Dependencies for GIFs
-gif = { version = "0.11", optional = true }
+gif = { version = "0.12", optional = true }
 color_quant = { version = "1.1.0", optional = true }
 rayon = { version = "1.5", optional = true }
 fnv = { version = "1" , optional = true}
-base64 = "0.13.0"
+base64 = "0.20.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = { version = "0.3.58" }
@@ -58,7 +58,7 @@ features = [
 ]
 
 [dev_dependencies]
-bevy = "0.8"
+bevy = "0.9.1"
 
 [package.metadata.docs.rs]
 all-features = true

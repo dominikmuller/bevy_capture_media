@@ -20,18 +20,20 @@ const TRACKING_ID: usize = 736298;
 
 fn main() {
 	App::new()
-		.add_plugins(DefaultPlugins)
+		.add_plugins(DefaultPlugins.set(WindowPlugin {
+			window: WindowDescriptor {
+				width: 800.0,
+				height: 600.0,
+				title: String::from("Basic Perspective Example"),
+				..Default::default()
+			},
+			..default()
+		}))
 		.add_plugin(BevyCapturePlugin)
 		.add_startup_system(spawn_camera)
 		.add_startup_system(spawn_scene)
 		.add_system(rotate_cam)
 		.add_system(take_screenshot)
-		.insert_resource(WindowDescriptor {
-			width: 800.0,
-			height: 600.0,
-			title: String::from("Multiple Cameras Example"),
-			..Default::default()
-		})
 		.run();
 }
 
@@ -50,7 +52,7 @@ pub fn spawn_camera(mut commands: Commands, mut capture: MediaCapture) {
 	// You need to get the `Entity` of the camera you want to track. This could also come from a
 	// query at a later point in time
 	let camera_entity = commands
-		.spawn_bundle(Camera3dBundle {
+		.spawn(Camera3dBundle {
 			transform: Transform::from_xyz(5., 2., 6.)
 				.looking_at(Vec3::new(0.0, 0.3, 0.0), Vec3::Y),
 			..default()
@@ -65,7 +67,7 @@ pub fn rotate_cam(time: Res<Time>, mut query: Query<&mut Transform, With<Directi
 		transform.rotation = Quat::from_euler(
 			EulerRot::ZYX,
 			0.0,
-			time.seconds_since_startup() as f32 * TAU / 10.0,
+			time.elapsed_seconds_f64() as f32 * TAU / 10.0,
 			-FRAC_PI_4,
 		);
 	}
@@ -78,7 +80,7 @@ pub fn spawn_scene(
 	mut capture: MediaCapture,
 ) {
 	const HALF_SIZE: f32 = 1.0;
-	commands.spawn_bundle(DirectionalLightBundle {
+	commands.spawn(DirectionalLightBundle {
 		directional_light: DirectionalLight {
 			shadow_projection: OrthographicProjection {
 				left: -HALF_SIZE,
@@ -97,13 +99,13 @@ pub fn spawn_scene(
 
 	let tree_handle = assets.load("Tree.gltf#Scene0");
 
-	let scene = commands.spawn_bundle(SceneBundle {
+	let scene = commands.spawn(SceneBundle {
 		scene: tree_handle,
 		..Default::default()
 	});
 
 	commands
-		.spawn_bundle(NodeBundle {
+		.spawn(NodeBundle {
 			style: Style {
 				size: Size::new(Val::Percent(100.), Val::Percent(100.)),
 				justify_content: JustifyContent::Center,
@@ -111,11 +113,11 @@ pub fn spawn_scene(
 				padding: UiRect::new(Val::Auto, Val::Auto, Val::Auto, Val::Px(50.)),
 				..Default::default()
 			},
-			color: UiColor(Color::rgba(0., 0., 0., 0.)),
+			background_color: BackgroundColor(Color::rgba(0., 0., 0., 0.)),
 			..Default::default()
 		})
 		.with_children(|children| {
-			children.spawn_bundle(TextBundle {
+			children.spawn(TextBundle {
 				text: Text::from_section(
 					"Take a screenshot with right shift!",
 					TextStyle {

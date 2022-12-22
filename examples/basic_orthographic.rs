@@ -11,7 +11,7 @@ use bevy_capture_media::{BevyCapturePlugin, MediaCapture};
 pub fn spawn_cameras(assets: Res<AssetServer>, mut commands: Commands, mut capture: MediaCapture) {
 	// You need to get the `Entity` of the camera you want to track. This could also come from a
 	// query at a later point in time
-	let camera_entity = commands.spawn_bundle(Camera2dBundle::default()).id();
+	let camera_entity = commands.spawn(Camera2dBundle::default()).id();
 
 	// Tell 'MediaCapture' to track the camera that we just spawned. Setup happens in the PostUpdate
 	// stage, so if you're tracking a camera that is spawned in the same frame, it must be spawned
@@ -20,7 +20,7 @@ pub fn spawn_cameras(assets: Res<AssetServer>, mut commands: Commands, mut captu
 
 	// This just sets up something to appear in the screenshots
 	commands
-		.spawn_bundle(NodeBundle {
+		.spawn(NodeBundle {
 			style: Style {
 				size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 				justify_content: JustifyContent::Center,
@@ -30,7 +30,7 @@ pub fn spawn_cameras(assets: Res<AssetServer>, mut commands: Commands, mut captu
 			..Default::default()
 		})
 		.with_children(|children| {
-			children.spawn_bundle(TextBundle {
+			children.spawn(TextBundle {
 				text: Text::from_section(
 					"Take a screenshot with right shift!",
 					TextStyle {
@@ -57,15 +57,17 @@ pub fn take_screenshot(input: Res<Input<KeyCode>>, mut capture: MediaCapture) {
 
 fn main() {
 	App::new()
-		.add_plugins(DefaultPlugins)
+		.add_plugins(DefaultPlugins.set(WindowPlugin {
+			window: WindowDescriptor {
+				width: 800.0,
+				height: 600.0,
+				title: String::from("Basic Orthographic Example"),
+				..Default::default()
+			},
+			..default()
+		}))
 		.add_plugin(BevyCapturePlugin)
 		.add_startup_system(spawn_cameras)
 		.add_system(take_screenshot)
-		.insert_resource(WindowDescriptor {
-			width: 800.0,
-			height: 600.0,
-			title: String::from("Multiple Cameras Example"),
-			..Default::default()
-		})
 		.run();
 }

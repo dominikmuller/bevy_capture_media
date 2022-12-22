@@ -41,7 +41,7 @@ pub fn smuggle_frame(
 	render_device: Res<RenderDevice>,
 	render_queue: Res<RenderQueue>,
 ) {
-	let mut smugglers = smugglers.lock().unwrap();
+	let mut smugglers = smugglers.0.lock().unwrap();
 	for (_id, mut recorder) in smugglers.iter_mut() {
 		if let Some(image) = images.get(&recorder.target_handle) {
 			let width = image.size.x as u32;

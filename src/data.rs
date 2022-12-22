@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+use bevy_ecs::prelude::Resource;
 use bevy_asset::Handle;
 use bevy_ecs::component::Component;
 use bevy_ecs::entity::Entity;
@@ -105,7 +106,7 @@ pub struct ActiveRecorder {
 	pub frames: VecDeque<TextureFrame>,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Resource)]
 pub struct ActiveRecorders(pub HashMap<RecorderID, ActiveRecorder>);
 impl Deref for ActiveRecorders {
 	type Target = HashMap<RecorderID, ActiveRecorder>;
@@ -138,7 +139,8 @@ impl DerefMut for DataSmuggler {
 	}
 }
 
-pub type SharedDataSmuggler = Arc<Mutex<DataSmuggler>>;
+#[derive(Resource, Default, Clone)]
+pub struct SharedDataSmuggler(pub Arc<Mutex<DataSmuggler>>);
 
 // -- TRAITS --
 

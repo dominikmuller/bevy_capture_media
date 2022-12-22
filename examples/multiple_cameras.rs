@@ -24,14 +24,16 @@ const TRACKER_TWO: usize = 193;
 
 fn main() {
 	App::new()
-		.add_plugins(DefaultPlugins)
-		.add_plugin(BevyCapturePlugin)
-		.insert_resource(WindowDescriptor {
+	.add_plugins(DefaultPlugins.set(WindowPlugin {
+		window: WindowDescriptor {
 			width: 800.0,
 			height: 600.0,
 			title: String::from("Multiple Cameras Example"),
 			..Default::default()
-		})
+		},
+		..default()
+	}))
+		.add_plugin(BevyCapturePlugin)
 		.add_startup_system(spawn_first_camera)
 		.add_startup_system(spawn_second_camera)
 		.add_startup_system(spawn_scene)
@@ -50,9 +52,10 @@ pub fn spawn_first_camera(mut commands: Commands, mut capture: MediaCapture) {
 	// You need to get the `Entity` of the camera you want to track. This could also come from a
 	// query at a later point in time
 	let camera_entity = commands
-		.spawn_bundle(Camera2dBundle {
+		.spawn(Camera2dBundle {
 			camera: Camera {
 				viewport: Some(viewport),
+				priority: 1,
 				..Camera::default()
 			},
 
@@ -72,9 +75,10 @@ pub fn spawn_second_camera(mut commands: Commands, mut capture: MediaCapture) {
 	// You need to get the `Entity` of the camera you want to track. This could also come from a
 	// query at a later point in time
 	let camera_entity = commands
-		.spawn_bundle(Camera2dBundle {
+		.spawn(Camera2dBundle {
 			camera: Camera {
 				viewport: Some(viewport),
+				priority: 2,
 				..Camera::default()
 			},
 			..Camera2dBundle::default()
@@ -86,7 +90,7 @@ pub fn spawn_second_camera(mut commands: Commands, mut capture: MediaCapture) {
 
 pub fn spawn_scene(mut commands: Commands, assets: Res<AssetServer>) {
 	commands
-		.spawn_bundle(NodeBundle {
+		.spawn(NodeBundle {
 			style: Style {
 				size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 				justify_content: JustifyContent::Center,
@@ -96,7 +100,7 @@ pub fn spawn_scene(mut commands: Commands, assets: Res<AssetServer>) {
 			..Default::default()
 		})
 		.with_children(|children| {
-			children.spawn_bundle(TextBundle {
+			children.spawn(TextBundle {
 				text: Text::from_section(
 					"Take a screenshot with right shift!",
 					TextStyle {

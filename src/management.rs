@@ -39,7 +39,7 @@ pub fn clean_cameras(
 	for (entity, Recorder(id), Track(target)) in &trackers {
 		if tracked.get(*target).is_err() {
 			commands.entity(entity).despawn();
-			smugglers.lock().unwrap().remove(id);
+			smugglers.0.lock().unwrap().remove(id);
 			recorders.remove(id);
 		}
 	}
@@ -62,7 +62,7 @@ pub fn move_camera_buffers(
 	mut recorders: ResMut<ActiveRecorders>,
 ) {
 	let dt = time.delta();
-	let mut smugglers = smugglers.lock().unwrap();
+	let mut smugglers = smugglers.0.lock().unwrap();
 	for (id, mut data) in smugglers.iter_mut() {
 		if data.last_frame.is_none() {
 			continue;
@@ -114,7 +114,7 @@ pub fn start_tracking_orthographic_camera(
 			let new_id = event.tracking_id;
 
 			let tracker_entity = commands
-				.spawn_bundle(Camera2dBundle {
+				.spawn(Camera2dBundle {
 					transform: transform.clone(),
 					projection: ortho.clone(),
 					camera: Camera {
@@ -127,7 +127,7 @@ pub fn start_tracking_orthographic_camera(
 				.insert(Track(event.cam_entity))
 				.id();
 
-			let mut smuggle = smugglers
+			let mut smuggle = smugglers.0
 				.lock()
 				.expect("Smugglers have gone; Poisoned Mutex");
 
