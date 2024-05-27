@@ -1,15 +1,7 @@
 use std::time::Duration;
 
-use bevy_asset::Assets;
-use bevy_core_pipeline::core_2d::Camera2dBundle;
-use bevy_ecs::entity::Entity;
-use bevy_ecs::event::Events;
-use bevy_ecs::query::{With, Without};
-use bevy_ecs::system::{Commands, Query, Res, ResMut};
-use bevy_render::camera::{Camera, OrthographicProjection, RenderTarget};
-use bevy_render::texture::Image;
-use bevy_time::Time;
-use bevy_transform::components::Transform;
+use bevy::prelude::*;
+use bevy::render::camera::RenderTarget;
 
 use crate::data::ProjectToImage;
 use crate::data::{

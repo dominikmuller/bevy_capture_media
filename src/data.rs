@@ -4,15 +4,16 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use bevy_ecs::prelude::Resource;
-use bevy_asset::Handle;
-use bevy_ecs::component::Component;
-use bevy_ecs::entity::Entity;
-use bevy_ecs::event::EventWriter;
-use bevy_ecs::system::SystemParam;
-use bevy_render::camera::OrthographicProjection;
-use bevy_render::texture::{BevyDefault, Image};
+use bevy::prelude::*;
+use bevy::ecs::prelude::Resource;
+use bevy::asset::Handle;
+use bevy::ecs::component::Component;
+use bevy::ecs::entity::Entity;
+use bevy::ecs::event::EventWriter;
+use bevy::ecs::system::SystemParam;
+use bevy::render::camera::OrthographicProjection;
 use wgpu::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages};
+use bevy::render::texture::{TextureFormatPixelInfo, BevyDefault};
 
 pub type RecorderID = usize;
 
@@ -152,8 +153,8 @@ impl ProjectToImage for &OrthographicProjection {
 	fn project_to_image(&self) -> Image {
 		let format = TextureFormat::bevy_default();
 		let size = Extent3d {
-			width: (self.right - self.left).max(0.0) as u32,
-			height: (self.top - self.bottom).max(0.0) as u32,
+			width: (self.area.max.x - self.area.min.x).max(0.0) as u32,
+			height: (self.area.max.y - self.area.min.y).max(0.0) as u32,
 			..Default::default()
 		};
 
@@ -169,6 +170,7 @@ impl ProjectToImage for &OrthographicProjection {
 					| TextureUsages::COPY_SRC,
 				sample_count: 1,
 				mip_level_count: 1,
+				view_formats: &[]
 			},
 			..Default::default()
 		};
@@ -183,14 +185,14 @@ pub trait HasTaskStatus: Component {
 
 // -- EVENTS --
 
-#[derive(Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Debug)]
+#[derive(Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Debug, Event)]
 pub struct StartTrackingCamera {
 	pub cam_entity: Entity,
 	pub tracking_id: RecorderID,
 	pub length: Duration,
 }
 
-#[derive(Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Debug)]
+#[derive(Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Debug, Event)]
 pub struct StopTrackingCamera {
 	pub tracking_id: RecorderID,
 }
@@ -199,7 +201,7 @@ pub struct StopTrackingCamera {
 /// information. This will be the most recent frame already stored when
 /// the event is processed, rather than the next frame to be stored after
 /// the event is processed.
-#[derive(Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Default)]
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Default, Event)]
 pub struct CaptureFrame<CaptureType> {
 	/// The identifier for the camera tracker that should capture a frame
 	pub tracking_id: RecorderID,
@@ -230,7 +232,7 @@ pub struct CaptureFrame<CaptureType> {
 /// Request that the current frame buffer is converted into the specified `CaptureType` and
 /// saved. Encoding the frame buffer usually takes some amount of time on most platforms, which
 /// will happen asynchronously
-#[derive(Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Default)]
+#[derive(Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Default, Event)]
 pub struct CaptureRecording<CaptureType> {
 	/// The identifier for the camera tracker that should capture a frame
 	pub tracking_id: RecorderID,
@@ -277,17 +279,17 @@ pub struct CaptureRecording<CaptureType> {
 /// }
 /// ```
 #[derive(SystemParam)]
-pub struct MediaCapture<'w, 's> {
+pub struct MediaCapture<'w> {
 	#[cfg(feature = "gif")]
-	capture_gif: EventWriter<'w, 's, crate::formats::gif::CaptureGifRecording>,
+	capture_gif: EventWriter<'w, crate::formats::gif::CaptureGifRecording>,
 	#[cfg(feature = "png")]
-	capture_png: EventWriter<'w, 's, crate::formats::png::SavePngFile>,
+	capture_png: EventWriter<'w, crate::formats::png::SavePngFile>,
 
-	start_tracking: EventWriter<'w, 's, StartTrackingCamera>,
-	stop_tracking: EventWriter<'w, 's, StopTrackingCamera>,
+	start_tracking: EventWriter<'w, StartTrackingCamera>,
+	stop_tracking: EventWriter<'w, StopTrackingCamera>,
 }
 
-impl<'w, 's> MediaCapture<'w, 's> {
+impl<'w> MediaCapture<'w> {
 	/// Start to capture frames for the given camera. The number of frames captured
 	/// is determined by the given `Duration`, and will vary based on the framerate
 	/// of the application
@@ -317,7 +319,7 @@ impl<'w, 's> MediaCapture<'w, 's> {
 	/// Requests for capture that _have_ started processing will continue. Capture
 	/// tasks take ownership of any frames they're using, so output will not be affected
 	pub fn stop_tracking_camera(&mut self, tracking_id: RecorderID) {
-		self.stop_tracking.send(StopTrackingCamera { tracking_id })
+		self.stop_tracking.send(StopTrackingCamera { tracking_id });
 	}
 
 	/// Request that the recorder identified by `tracking_id` encodes its
@@ -365,6 +367,6 @@ impl<'w, 's> MediaCapture<'w, 's> {
 			and_then: PostCaptureAction::Continue,
 			path: Some(path.as_ref().to_path_buf()),
 			capture_type: crate::formats::png::SavePng::Basic,
-		})
+		});
 	}
 }

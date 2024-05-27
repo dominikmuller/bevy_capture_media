@@ -20,7 +20,7 @@ pub fn spawn_cameras(assets: Res<AssetServer>, mut commands: Commands, mut captu
 
 	// This just sets up something to appear in the screenshots
 	commands
-		.spawn(NodeBundle {
+		.spawn(NodeBundle{
 			style: Style {
 				size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
 				justify_content: JustifyContent::Center,

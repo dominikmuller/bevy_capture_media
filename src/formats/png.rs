@@ -1,23 +1,17 @@
-use std::io::Cursor;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-use bevy_asset::{Assets, Handle};
-use bevy_ecs::component::Component;
-use bevy_ecs::prelude::Events;
-use bevy_ecs::system::{Commands, Res, ResMut};
-use bevy_render::texture::Image;
-use bevy_render::texture::TextureFormatPixelInfo;
-use bevy_tasks::{AsyncComputeTaskPool, Task};
+use bevy::prelude::*;
+use bevy::render::texture::TextureFormatPixelInfo;
+use bevy::tasks::{AsyncComputeTaskPool, Task};
 use futures_lite::future;
-use image::{EncodableLayout, ImageBuffer, ImageFormat};
-use wgpu::TextureFormat;
+use image::ImageFormat;
 
 use crate::data::{ActiveRecorders, Alignment, CaptureFrame, HasTaskStatus};
 use crate::image_utils::frame_data_to_rgba_image;
 #[cfg(target_arch = "wasm32")]
 use crate::web_utils;
 
-#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Default)]
+#[derive(Debug, Clone, Ord, PartialOrd, Eq, PartialEq, Default, Event)]
 pub enum SavePng {
 	#[default]
 	Basic,

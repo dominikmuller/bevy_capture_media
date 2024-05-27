@@ -11,8 +11,9 @@ mod render;
 mod web_utils;
 
 mod plugin {
-	use bevy_app::{App, CoreStage, Plugin};
-	use bevy_render::{RenderApp, RenderStage};
+  use bevy::prelude::*;
+	use bevy::app::{App, Plugin};
+	use bevy::render::{RenderApp, RenderSet, Render};
 
 	use super::*;
 
@@ -26,36 +27,36 @@ mod plugin {
 				.add_event::<data::StopTrackingCamera>()
 				.insert_resource(tracking_tracker)
 				.insert_resource(data_smuggler.clone())
-				.add_system_to_stage(CoreStage::First, management::clean_cameras)
-				.add_system_to_stage(CoreStage::First, management::move_camera_buffers)
-				.add_system_to_stage(CoreStage::PostUpdate, management::sync_tracking_cameras)
-				.add_system_to_stage(
-					CoreStage::PostUpdate,
+				.add_systems(PreUpdate, management::clean_cameras)
+				.add_systems(PreUpdate, management::move_camera_buffers)
+				.add_systems(PostUpdate, management::sync_tracking_cameras)
+				.add_systems(
+					PostUpdate,
 					management::start_tracking_orthographic_camera,
 				);
 
 			#[cfg(feature = "gif")]
 			{
 				app.add_event::<formats::gif::CaptureGifRecording>()
-					.add_system_to_stage(
-						CoreStage::PostUpdate,
+					.add_systems(
+						PostUpdate,
 						formats::gif::capture_gif_recording,
 					);
 
 				#[cfg(not(target_arch = "wasm32"))]
-				app.add_system_to_stage(
-					CoreStage::Last,
+				app.add_systems(
+					Last,
 					management::clean_unmonitored_tasks::<formats::gif::SaveGifRecording>,
 				);
 			}
 			#[cfg(feature = "png")]
 			{
 				app.add_event::<formats::png::SavePngFile>()
-					.add_system_to_stage(CoreStage::PostUpdate, formats::png::save_single_frame);
+					.add_systems(PostUpdate, formats::png::save_single_frame);
 
 				#[cfg(not(target_arch = "wasm32"))]
-				app.add_system_to_stage(
-					CoreStage::Last,
+				app.add_systems(
+					PostUpdate,
 					management::clean_unmonitored_tasks::<formats::png::SaveFrameTask>,
 				);
 			}
@@ -64,8 +65,8 @@ mod plugin {
 				.expect("bevy_capture_media will not work without the render app. Either enable this sub app, or disable bevy_capture_media");
 
 			render_app
-				.insert_resource(data_smuggler)
-				.add_system_to_stage(RenderStage::Render, render::smuggle_frame);
+        .insert_resource(data_smuggler)
+				.add_systems(Render, render::smuggle_frame.in_set(RenderSet::Render));
 		}
 	}
 }

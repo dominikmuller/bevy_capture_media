@@ -2,14 +2,11 @@ use std::io::Read;
 use std::num::NonZeroU32;
 use std::ops::Deref;
 
-use bevy_ecs::system::{Res, ResMut};
-use bevy_render::render_asset::RenderAssets;
-use bevy_render::render_resource::TextureFormat;
-use bevy_render::renderer::{RenderDevice, RenderQueue};
-use bevy_render::texture::{Image, ImageFormat, TextureFormatPixelInfo};
+use bevy::{prelude::*, render::{render_asset::RenderAssets, renderer::{RenderDevice, RenderQueue}, render_resource::TextureFormat}};
+use bevy::render::texture::TextureFormatPixelInfo;
 use wgpu::{
 	BufferDescriptor, BufferUsages, CommandEncoderDescriptor, Extent3d, ImageCopyBuffer,
-	ImageDataLayout, Maintain, TextureDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
+	ImageDataLayout, Maintain, COPY_BYTES_PER_ROW_ALIGNMENT,
 };
 
 use crate::data::SharedDataSmuggler;
@@ -26,8 +23,8 @@ pub fn layout_data(width: u32, height: u32, format: TextureFormat) -> ImageDataL
 	ImageDataLayout {
 		bytes_per_row: if height > 1 {
 			// 1 = 1 row
-			NonZeroU32::new(get_aligned_size(width, 1, format.pixel_size() as u32))
-		} else {
+    Some(get_aligned_size(width, 1, format.pixel_size() as u32))
+    } else {
 			None
 		},
 		rows_per_image: None,

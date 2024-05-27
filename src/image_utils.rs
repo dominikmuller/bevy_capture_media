@@ -1,4 +1,4 @@
-use bevy_render::texture::TextureFormatPixelInfo;
+use bevy::render::texture::TextureFormatPixelInfo;
 use image::RgbaImage;
 use wgpu::TextureFormat;
 

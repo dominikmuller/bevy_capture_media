@@ -5,12 +5,13 @@ use std::io::BufWriter;
 use std::rc::Rc;
 use std::sync::Arc;
 
-use bevy_asset::Assets;
-use bevy_ecs::component::Component;
-use bevy_ecs::event::Events;
-use bevy_ecs::system::{Commands, Res, ResMut};
-use bevy_render::texture::Image;
-use bevy_tasks::{AsyncComputeTaskPool, Task};
+use bevy::prelude::*;
+//use bevy_asset::Assets;
+//use bevy_ecs::component::Component;
+//use bevy_ecs::event::Events;
+//use bevy_ecs::system::{Commands, Res, ResMut};
+//use bevy_render::texture::Image;
+use bevy::tasks::{AsyncComputeTaskPool, Task};
 use color_quant::NeuQuant;
 use futures_lite::future;
 use gif::{Encoder, Frame, Repeat};
@@ -156,7 +157,7 @@ pub fn capture_gif_recording(
 			#[cfg(target_arch = "wasm32")]
 			task.detach();
 			#[cfg(not(target_arch = "wasm32"))]
-			commands.spawn().insert(SaveGifRecording(task));
+			commands.spawn(SaveGifRecording(task));
 		}
 	}
 }
