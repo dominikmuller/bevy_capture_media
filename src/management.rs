@@ -23,7 +23,7 @@ pub fn sync_tracking_cameras(
 
 pub fn clean_cameras(
 	mut commands: Commands,
-	mut smugglers: ResMut<SharedDataSmuggler>,
+	smugglers: ResMut<SharedDataSmuggler>,
 	mut recorders: ResMut<ActiveRecorders>,
 	trackers: Query<(Entity, &Recorder, &Track)>,
 	tracked: Query<(), With<Camera>>,
@@ -50,17 +50,17 @@ pub fn clean_unmonitored_tasks<T: HasTaskStatus>(
 
 pub fn move_camera_buffers(
 	time: Res<Time>,
-	mut smugglers: ResMut<SharedDataSmuggler>,
+	smugglers: ResMut<SharedDataSmuggler>,
 	mut recorders: ResMut<ActiveRecorders>,
 ) {
 	let dt = time.delta();
 	let mut smugglers = smugglers.0.lock().unwrap();
-	for (id, mut data) in smugglers.iter_mut() {
+	for (id, data) in smugglers.iter_mut() {
 		if data.last_frame.is_none() {
 			continue;
 		}
 
-		recorders.entry(*id).and_modify(|mut recorder| {
+		recorders.entry(*id).and_modify(|recorder| {
 			let current_duration = recorder
 				.frames
 				.iter()
@@ -83,7 +83,7 @@ pub fn move_camera_buffers(
 			}
 
 			recorder.frames.push_back(TextureFrame::with_duration(
-				std::mem::replace(&mut data.last_frame, None)
+				data.last_frame.take()
 					.expect("A frame has disappeared in Lego City"),
 				dt,
 			));
@@ -95,7 +95,7 @@ pub fn start_tracking_orthographic_camera(
 	mut commands: Commands,
 	mut events: ResMut<Events<StartTrackingCamera>>,
 	mut images: ResMut<Assets<Image>>,
-	mut smugglers: ResMut<SharedDataSmuggler>,
+	smugglers: ResMut<SharedDataSmuggler>,
 	mut recorders: ResMut<ActiveRecorders>,
 	query: Query<(&Camera, &Transform, &OrthographicProjection)>,
 ) {
@@ -107,7 +107,7 @@ pub fn start_tracking_orthographic_camera(
 
 			let tracker_entity = commands
 				.spawn(Camera2dBundle {
-					transform: transform.clone(),
+					transform: *transform,
 					projection: ortho.clone(),
 					camera: Camera {
 						target: RenderTarget::Image(target_handle.clone()),

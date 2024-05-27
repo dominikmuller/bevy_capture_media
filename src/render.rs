@@ -1,5 +1,3 @@
-use std::io::Read;
-use std::num::NonZeroU32;
 use std::ops::Deref;
 
 use bevy::{prelude::*, render::{render_asset::RenderAssets, renderer::{RenderDevice, RenderQueue}, render_resource::TextureFormat}};
@@ -33,13 +31,13 @@ pub fn layout_data(width: u32, height: u32, format: TextureFormat) -> ImageDataL
 }
 
 pub fn smuggle_frame(
-	mut smugglers: ResMut<SharedDataSmuggler>,
+	smugglers: ResMut<SharedDataSmuggler>,
 	images: Res<RenderAssets<Image>>,
 	render_device: Res<RenderDevice>,
 	render_queue: Res<RenderQueue>,
 ) {
 	let mut smugglers = smugglers.0.lock().unwrap();
-	for (_id, mut recorder) in smugglers.iter_mut() {
+	for (_id, recorder) in smugglers.iter_mut() {
 		if let Some(image) = images.get(&recorder.target_handle) {
 			let width = image.size.x as u32;
 			let height = image.size.y as u32;

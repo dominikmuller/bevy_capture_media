@@ -13,7 +13,7 @@ use bevy::ecs::event::EventWriter;
 use bevy::ecs::system::SystemParam;
 use bevy::render::camera::OrthographicProjection;
 use wgpu::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages};
-use bevy::render::texture::{TextureFormatPixelInfo, BevyDefault};
+use bevy::render::texture::{BevyDefault};
 
 pub type RecorderID = usize;
 
@@ -269,13 +269,13 @@ pub struct CaptureRecording<CaptureType> {
 ///
 /// ```rust
 /// pub fn my_screenshot_system(
-/// 	input: Res<Input<KeyCode>>,
-/// 	mut media: MediaCapture
+///   input: Res<Input<KeyCode>>,
+///   mut media: MediaCapture
 /// ) {
-/// 	if input.just_released(KeyCode::Escape) {
-/// 		// Typically you would store the recorder ID in a resource
-/// 		media.capture_png_with_path(1, "screenshots/achievement_123.png");
-/// 	}
+///   if input.just_released(KeyCode::Escape) {
+///     // Typically you would store the recorder ID in a resource
+///     media.capture_png_with_path(1, "screenshots/achievement_123.png");
+///   }
 /// }
 /// ```
 #[derive(SystemParam)]

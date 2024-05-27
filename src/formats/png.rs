@@ -51,15 +51,14 @@ pub fn save_single_frame(
 
 			let (width, height, target_format) = match images.get(&recorder.target_handle) {
 				Some(image) => (
-					image.size().x as u32,
-					image.size().y as u32,
+					image.size().x,
+					image.size().y,
 					image.texture_descriptor.format,
 				),
 				None => continue 'event_drain,
 			};
 
 			let task = thread_pool.spawn(async move {
-				let data = data;
 				let format = target_format;
 
 				let expected_size = width * height * format.pixel_size() as u32;

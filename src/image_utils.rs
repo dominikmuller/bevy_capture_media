@@ -29,6 +29,7 @@ pub fn frame_data_to_rgba_image(
 	})
 }
 
+#[allow(dead_code)]
 pub fn to_rgba(buffer: Vec<u8>, format: TextureFormat) -> Vec<u8> {
 	match format {
 		TextureFormat::Rgba8UnormSrgb
@@ -49,6 +50,7 @@ pub fn to_rgba(buffer: Vec<u8>, format: TextureFormat) -> Vec<u8> {
 	}
 }
 
+#[allow(dead_code)]
 pub fn to_grouped_rgba(buffer: &[u8], format: TextureFormat) -> Vec<[u8; 4]> {
 	buffer
 		.chunks_exact(4)
