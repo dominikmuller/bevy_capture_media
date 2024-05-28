@@ -9,9 +9,10 @@ description = "Event based screenshots & recording for Bevy Engine"
 exclude = ["assets"]
 
 [features]
-default = ["png"]
+default = ["png", "mp4"]
 png = ["dep:image"]
 gif = ["dep:image", "dep:gif", "dep:color_quant", "dep:fnv"]
+mp4 = ["dep:image", "dep:video-rs", "dep:crossbeam-channel"]
 parallel = ["dep:rayon"]
 
 [dependencies]
@@ -31,6 +32,9 @@ color_quant = { version = "1.1.0", optional = true }
 rayon = { version = "1.10", optional = true }
 fnv = { version = "1" , optional = true}
 base64 = "0.22.1"
+video-rs = { version = "0.8.1", optional = true, features = ["ndarray"] }
+crossbeam-channel = { version = "0.5.13", optional = true }
+ndarray = "0.15.6"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 js-sys = { version = "0.3.69" }
