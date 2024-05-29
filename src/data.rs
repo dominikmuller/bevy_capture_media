@@ -383,6 +383,16 @@ impl<'w> MediaCapture<'w> {
     }
 
     #[cfg(feature = "mp4")]
+    pub fn capture_mp4_with_path<P: AsRef<Path>>(&mut self, tracking_id: RecorderID, path: P) {
+        self.capture_mp4.send(CaptureFrame {
+            tracking_id,
+            and_then: PostCaptureAction::Continue,
+            path: Some(path.as_ref().to_path_buf()),
+            capture_type: crate::formats::mp4::Mp4State::Start,
+        });
+    }
+
+    #[cfg(feature = "mp4")]
     pub fn stop_capture_mp4(&mut self, tracking_id: RecorderID) {
         self.capture_mp4.send(CaptureFrame {
             tracking_id,
